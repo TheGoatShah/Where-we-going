@@ -13,10 +13,16 @@ export function StarRating({ value, onChange, max = 5 }: StarRatingProps) {
       {/* "Any" option */}
       <motion.button
         onClick={() => onChange(0)}
-        className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-colors duration-200 ${
-          value === 0 ? 'bg-primary text-white border-primary' : ''
-        }`}
-        style={value !== 0 ? { color: 'var(--text-secondary)', borderColor: 'var(--item-border)' } : {}}
+        className="text-xs font-medium px-2.5 py-1 rounded-full border transition-colors duration-200"
+        style={value === 0 ? {
+          background: 'rgb(var(--color-primary-rgb))',
+          borderColor: 'rgb(var(--color-primary-rgb))',
+          color: '#fff',
+        } : {
+          background: 'var(--item-bg)',
+          borderColor: 'var(--item-border)',
+          color: 'var(--text-secondary)',
+        }}
         whileTap={{ scale: 0.92 }}
       >
         Any
