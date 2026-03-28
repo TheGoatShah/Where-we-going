@@ -65,7 +65,8 @@ export function Header() {
               key={favorites.length}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center"
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center"
+              style={{ background: 'rgb(var(--color-primary-rgb))', color: '#fff' }}
             >
               {favorites.length > 9 ? '9+' : favorites.length}
             </motion.span>

@@ -195,8 +195,12 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => addToRecentlyViewed(restaurant)}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-colors duration-200"
-            style={{ boxShadow: 'var(--color-primary-glow) 0 0 16px' }}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-semibold transition-colors duration-200"
+            style={{
+              background: 'rgb(var(--color-primary-rgb))',
+              color: '#fff',
+              boxShadow: '0 0 16px var(--color-primary-glow)',
+            }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
           >

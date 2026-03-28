@@ -27,7 +27,11 @@ function ActionButton({
     'flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-2xl font-semibold text-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary'
 
   const variantStyles: Record<string, React.CSSProperties> = {
-    primary: {},
+    primary: {
+      background: 'rgb(var(--color-primary-rgb))',
+      borderColor: 'rgb(var(--color-primary-rgb))',
+      color: '#fff',
+    },
     secondary: {
       background: 'var(--item-bg)',
       borderColor: 'var(--item-border)',
@@ -39,7 +43,7 @@ function ActionButton({
   }
 
   const variantClass: Record<string, string> = {
-    primary: 'bg-primary text-white hover:bg-primary-dark border border-primary',
+    primary: 'border',
     secondary: 'border hover:opacity-80',
     ghost: 'hover:opacity-80',
   }
