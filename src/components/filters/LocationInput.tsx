@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useFilterStore } from '../../store/filterStore'
 import { useGeolocation } from '../../hooks/useGeolocation'
 import { usePlacesAutocomplete } from '../../hooks/usePlacesAutocomplete'
-import { geocodeAddress } from '../../services/placesApi'
+import { geocodeAddress, geocodeByPlaceId } from '../../services/placesApi'
 import { LocationIcon, GpsIcon, LoaderIcon } from '../ui/icons'
 
 export function LocationInput() {
@@ -57,13 +57,15 @@ export function LocationInput() {
     if (!val) setLocation(null)
   }
 
-  const handleSelectSuggestion = async (text: string) => {
+  const handleSelectSuggestion = async (text: string, placeId?: string) => {
     setInputValue(text)
     setShowDropdown(false)
     clearSuggestions()
     setIsGeocoding(true)
     try {
-      const result = await geocodeAddress(text)
+      const result = placeId
+        ? await geocodeByPlaceId(placeId)
+        : await geocodeAddress(text)
       if (result) {
         setLocation({ address: text, lat: result.lat, lng: result.lng })
       }
@@ -161,7 +163,7 @@ export function LocationInput() {
                     style={{ borderColor: 'var(--item-border-subtle)' }}
                     onMouseDown={(e) => {
                       e.preventDefault()
-                      handleSelectSuggestion(fullText)
+                      handleSelectSuggestion(fullText, s.placeId)
                     }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--dropdown-hover)' }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = '' }}

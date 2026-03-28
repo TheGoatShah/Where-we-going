@@ -119,30 +119,30 @@ export async function getAutocompleteSuggestions(
 
 // ─── Geocoding ────────────────────────────────────────────────────────────────
 
-export async function geocodeAddress(
-  address: string,
-): Promise<{ lat: number; lng: number; formattedAddress: string } | null> {
-  const params = new URLSearchParams({
-    address,
-    components: 'country:US',
-    key: API_KEY,
-  })
+type GeocodeResult = { lat: number; lng: number; formattedAddress: string } | null
 
-  const response = await fetch(
-    `https://maps.googleapis.com/maps/api/geocode/json?${params}`,
-  )
-
+async function parseGeocodeResponse(response: Response): Promise<GeocodeResult> {
   if (!response.ok) return null
-
   const data = await response.json()
   if (data.status !== 'OK' || !data.results?.[0]) return null
-
   const result = data.results[0]
   return {
     lat: result.geometry.location.lat,
     lng: result.geometry.location.lng,
     formattedAddress: result.formatted_address,
   }
+}
+
+export async function geocodeByPlaceId(placeId: string): Promise<GeocodeResult> {
+  const params = new URLSearchParams({ place_id: placeId, key: API_KEY })
+  const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${params}`)
+  return parseGeocodeResponse(response)
+}
+
+export async function geocodeAddress(address: string): Promise<GeocodeResult> {
+  const params = new URLSearchParams({ address, key: API_KEY })
+  const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${params}`)
+  return parseGeocodeResponse(response)
 }
 
 // ─── Mapper ───────────────────────────────────────────────────────────────────
