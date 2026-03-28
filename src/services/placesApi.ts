@@ -110,7 +110,6 @@ export async function getAutocompleteSuggestions(
   }
 
   const data: AutocompleteResponse = await response.json()
-  console.log('[Autocomplete] raw response:', data)
   return (data.suggestions ?? [])
     .map((s) => s.placePrediction)
     .filter(Boolean)
@@ -121,28 +120,56 @@ export async function getAutocompleteSuggestions(
 
 type GeocodeResult = { lat: number; lng: number; formattedAddress: string } | null
 
-async function parseGeocodeResponse(response: Response): Promise<GeocodeResult> {
+// Uses Places API (New) — works with HTTP referrer restrictions
+export async function geocodeByPlaceId(placeId: string): Promise<GeocodeResult> {
+  const response = await fetch(`${BASE_URL}/places/${placeId}`, {
+    headers: {
+      'X-Goog-Api-Key': API_KEY,
+      'X-Goog-FieldMask': 'id,location,formattedAddress',
+    },
+  })
   if (!response.ok) return null
   const data = await response.json()
-  if (data.status !== 'OK' || !data.results?.[0]) return null
-  const result = data.results[0]
+  if (!data.location) return null
   return {
-    lat: result.geometry.location.lat,
-    lng: result.geometry.location.lng,
-    formattedAddress: result.formatted_address,
+    lat: data.location.latitude,
+    lng: data.location.longitude,
+    formattedAddress: data.formattedAddress ?? '',
   }
 }
 
-export async function geocodeByPlaceId(placeId: string): Promise<GeocodeResult> {
-  const params = new URLSearchParams({ place_id: placeId, key: API_KEY })
-  const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${params}`)
-  return parseGeocodeResponse(response)
-}
-
+// Fallback for GPS reverse-geocode — also uses Places API (New) via nearby search
 export async function geocodeAddress(address: string): Promise<GeocodeResult> {
-  const params = new URLSearchParams({ address, key: API_KEY })
-  const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${params}`)
-  return parseGeocodeResponse(response)
+  // Used only for GPS coords passed as "lat,lng" string
+  const [latStr, lngStr] = address.split(',')
+  const lat = parseFloat(latStr)
+  const lng = parseFloat(lngStr)
+  if (isNaN(lat) || isNaN(lng)) return null
+
+  const response = await fetch(`${BASE_URL}/places:searchNearby`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': API_KEY,
+      'X-Goog-FieldMask': 'places.id,places.location,places.formattedAddress',
+    },
+    body: JSON.stringify({
+      locationRestriction: {
+        circle: { center: { latitude: lat, longitude: lng }, radius: 50 },
+      },
+      maxResultCount: 1,
+      includedPrimaryTypes: ['street_address', 'premise', 'neighborhood', 'locality'],
+    }),
+  })
+  if (!response.ok) return null
+  const data = await response.json()
+  const place = data.places?.[0]
+  if (!place) return { lat, lng, formattedAddress: `${lat}, ${lng}` }
+  return {
+    lat: place.location.latitude,
+    lng: place.location.longitude,
+    formattedAddress: place.formattedAddress ?? '',
+  }
 }
 
 // ─── Mapper ───────────────────────────────────────────────────────────────────
