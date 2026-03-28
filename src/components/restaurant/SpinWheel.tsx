@@ -28,9 +28,9 @@ export function SpinWheel({ onDone }: SpinWheelProps) {
   useEffect(() => {
     controls
       .start({
-        rotate: 1800 + Math.random() * 360,
+        rotate: 900 + Math.random() * 360,
         transition: {
-          duration: 2.5,
+          duration: 1.2,
           ease: [0.17, 0.67, 0.12, 0.99],
         },
       })
